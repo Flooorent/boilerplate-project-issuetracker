@@ -18,11 +18,27 @@ chai.use(chaiHttp);
 describe('Functional Tests', function() {
 
   before(function(done) {
-    mongoClient.connect(done)
+    mongoClient.connect(function(err, result) {
+      if(err) {
+        console.log("Couldn't connect mongo client")
+        throw new Error(err)
+      }
+
+      console.log("Mongo client connected")
+      done()
+    })
   })
 
   after(function(done) {
-    mongoClient.close(true, done)
+    mongoClient.close(function(err, result) {
+      if(err) {
+        console.log("Couldn't close mongo client connection")
+        throw new Error(err)
+      }
+
+      console.log("Mongo client connection closed")
+      done()
+    })
   })
   
   describe('POST /api/issues/{project} => object with issue data', function() {
