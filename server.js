@@ -40,4 +40,10 @@ app.use(function(req, res, next) {
     .send('Not Found');
 });
 
+app.use(function(err, req, res, next) {
+  return res
+    .status(500)
+    .json(err)
+})
+
 module.exports = app;

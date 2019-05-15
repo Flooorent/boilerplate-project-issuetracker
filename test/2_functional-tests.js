@@ -40,7 +40,7 @@ describe('Functional Tests', function() {
     })
   })
   
-  describe('POST /api/issues/{project} => object with issue data', function() {
+  describe.only('POST /api/issues/{project} => object with issue data', function() {
       it('should fill in every field', function(done) {
         const issueTitle = 'Title'
         const issueText = 'text'
@@ -48,7 +48,7 @@ describe('Functional Tests', function() {
         const assignedTo = 'Chai and Mocha'
         const statusText = 'In QA'
 
-        const beforeCall = new Date()
+        const tsBeforeCall = new Date().toISOString()
         
         chai.request(server)
           .post('/api/issues/test')
@@ -60,7 +60,7 @@ describe('Functional Tests', function() {
             status_text: statusText
           })
           .end(function(err, res){
-            const afterCall = new Date()
+            const tsAfterCall = new Date().toISOString()
 
             res.should.have.status(200);
             res.should.be.json
@@ -79,31 +79,71 @@ describe('Functional Tests', function() {
             res.body.created_by.should.equal(createdBy)
             res.body.assigned_to.should.equal(assignedTo)
             res.body.status_text.should.equal(statusText)
-            
-            res.body.created_on.should.be.above(beforeCall)
-            res.body.created_on.should.be.below(afterCall)
-            
-            // TODO: finish assertions
+            res.body.created_on.should.be.above(tsBeforeCall)
+            res.body.created_on.should.be.below(tsAfterCall)
+            res.body.updated_on.should.be.above(tsBeforeCall)
+            res.body.updated_on.should.be.below(tsAfterCall)
+            res.body.open.should.be.true
             
             done();
           });
         });
-
-      /*
-      created_on(date/time)
-      updated_on(date/time)
-      open(boolean, true for open, false for closed)
-      _id.
-      */
       
       it('Required fields filled in', function(done) {
-        
+        const issueTitle = 'Title'
+        const issueText = 'text'
+        const createdBy = 'Functional Test - Every field filled in'
+
+        const tsBeforeCall = new Date().toISOString()
+
+        chai.request(server)
+          .post('/api/issues/test')
+          .send({
+            issue_title: issueTitle,
+            issue_text: issueText,
+            created_by: createdBy,
+          })
+          .end(function(err, res) {
+            const tsAfterCall = new Date().toISOString()
+
+            res.should.have.status(200);
+            res.should.be.json
+            res.body.should.be.an('object')
+            res.body.should.have.property('issue_title')
+            res.body.should.have.property('issue_text')
+            res.body.should.have.property('created_by')
+            res.body.should.have.property('assigned_to')
+            res.body.should.have.property('status_text')
+            res.body.should.have.property('created_on')
+            res.body.should.have.property('updated_on')
+            res.body.should.have.property('open')
+            res.body.should.have.property('_id')
+            res.body.issue_title.should.equal(issueTitle)
+            res.body.issue_text.should.equal(issueText)
+            res.body.created_by.should.equal(createdBy)
+            res.body.assigned_to.should.equal('')
+            res.body.status_text.should.equal('')
+            res.body.created_on.should.be.above(tsBeforeCall)
+            res.body.created_on.should.be.below(tsAfterCall)
+            res.body.updated_on.should.be.above(tsBeforeCall)
+            res.body.updated_on.should.be.below(tsAfterCall)
+            res.body.open.should.be.true
+            done()
+          })
       });
       
       it('Missing required fields', function(done) {
-        
+        chai.request(server)
+          .post('/api/issues/test')
+          .send({
+            issue_title: 'Title',
+            issue_text: 'text',
+          })
+          .end(function(err, res) {
+            res.should.have.status(400)
+            done()
+          })
       });
-      
     });
     
     describe('PUT /api/issues/{project} => text', function() {
