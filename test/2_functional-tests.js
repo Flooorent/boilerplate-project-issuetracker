@@ -147,16 +147,47 @@ describe('Functional Tests', function() {
     });
     
     describe('PUT /api/issues/{project} => text', function() {
+      /* I can PUT /api/issues/{projectname} with a _id and any fields in the
+      object with a value to object said object. Returned will be 'successfully
+      updated' or 'could not update '+_id. This should always update updated_on.
+      If no fields are sent return 'no updated field sent'.
+      */
       
-      it('No body', function(done) {
-        
+      it("should return 'no updated field sent' if there is no body", function(done) {
+        // TODO: insert data before this test, retrieve id, make sure no field were changed
+        const issueId = ''
+
+        chai.request(server)
+          .put('/api/issues/test')
+          .send({ _id: issueId })
+          .end(function(err, res) {
+            res.should.have.status(200)
+            res.should.be.json
+            res.body.should.be.an('object')
+            res.body.should.have.property('message')
+            res.body.message.should.equal('no updated field sent')
+            done()
+          })
       });
       
-      it('One field to update', function(done) {
-        
+      // TODO: insert data before updating
+      it('should update one field', function(done) {
+        const newAssignee = 'Flo'
+
+        chai.request(server)
+          .put('/api/issues/test')
+          .send({ assigned_to: newAssignee })
+          .end(function(err, res) {
+            res.should.have.status(200)
+            res.should.be.json
+            res.body.should.be.an('object')
+            res.body
+            done()
+          })
       });
       
-      it('Multiple fields to update', function(done) {
+      // TODO: insert data before updating
+      it('should update multiple fields', function(done) {
         
       });
       
